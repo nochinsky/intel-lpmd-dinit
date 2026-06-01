@@ -19,8 +19,8 @@ for Intel Energy Optimizer (LPMD) daemon
 	<lp_mode_epp></lp_mode_epp>
 
 	<!--
-		Mode values
-		0: Cgroup v2
+		Mode values (all use direct cgroup v2 cpuset isolation, no systemd)
+		0: Compatibility alias — same as mode 1
 		1: Cgroup v2 isolate
 		2: CPU idle injection
 	-->
