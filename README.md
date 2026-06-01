@@ -84,4 +84,4 @@ doas gmake uninstall
 
 GPL v2. See COPYING.
 
-Based on [intel_lpmd](https://github.com/intel/intel_lpmd) by Intel.
+Based on [intel_lpmd](https://github.com/intel/intel-lpmd) by Intel.
