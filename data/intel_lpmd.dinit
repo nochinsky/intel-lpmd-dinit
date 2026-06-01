@@ -1,0 +1,7 @@
+# Intel LPMD service for dinit
+
+type = process
+command = /usr/local/sbin/intel_lpmd --no-daemon --dbus-enable --loglevel=info
+logfile = /var/log/intel-lpmd.log
+smooth-recovery = true
+depends-on: dbus

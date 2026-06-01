@@ -1,182 +1,87 @@
-# Intel Low Power Mode Daemon
+# intel-lpmd-dinit
 
-Intel Low Power Mode Daemon (lpmd) is a Linux daemon designed to optimize active
-idle power. It selects the most power-efficient CPUs based on a configuration
-file or CPU topology. Depending on system utilization and other hints, it puts
-the system into Low Power Mode by activating the power-efficient CPUs and
-disabling the rest, and restores the system from Low Power Mode by activating
-all CPUs.
+Intel Low Power Mode Daemon for systems using dinit. Manages CPU power states on
+Intel hybrid processors — picks the right cores for the job and parks the rest.
 
-## Before You Start
+**Requirements**: Intel hybrid CPU (12th-gen or newer), Linux with cgroup v2,
+dinit as init system, D-Bus. Works on Chimera, Artix+dinit, Alpine+dinit,
+Void+dinit, or any distro with dinit — just adjust the package names below.
 
-**Please note** that the installed configuration files serve as templates of
-best practices for specific platform models and disable lpmd by default. For
-LPMD to start the user is expected to either edit the main
-"intel_lpmd_config.xml" config file or after starting the program, enable LPMD
-by using the intel_lpmd_control tool.
-
-Refer to the man pages for command line arguments and XML configurations:
+## Quick start (Chimera Linux)
 
 ```sh
-man intel_lpmd
-man intel_lpmd_control
-man intel_lpmd_config.xml
-```
+# Install build dependencies
+doas apk add gcc gmake pkgconf autoconf automake autoconf-archive \
+  musl-devel libatomic-chimera-devel linux-headers \
+  glib-devel libxml2-devel libnl-devel upower-devel gtk-doc-tools
 
-## Install Dependencies
-
-### Fedora
-
-```sh
-dnf install automake autoconf-archive gcc glib2-devel libxml2-devel libnl3-devel systemd-devel gtk-doc upower-devel
-```
-
-### Ubuntu
-
-```sh
-sudo apt install autoconf autoconf-archive gcc libglib2.0-dev libdbus-1-dev libxml2-dev libnl-3-dev libnl-genl-3-dev libsystemd-dev gtk-doc-tools libupower-glib-dev
-```
-
-### OpenSUSE
-
-```sh
-zypper in automake gcc
-```
-
-## Build and Install
-
-```sh
+# Build and install
 ./autogen.sh
-make
-sudo make install
+gmake
+doas gmake install
+
+# Install the dinit service
+doas cp /usr/local/share/dinit.d/intel_lpmd.dinit /etc/dinit.d/intel-lpmd
+
+# Enable and start
+doas dinitctl enable intel-lpmd
+doas dinitctl start intel-lpmd
+
+# Remove build dependencies (optional — only if you won't rebuild)
+doas apk del gcc gmake autoconf automake autoconf-archive \
+  musl-devel libatomic-chimera-devel linux-headers \
+  glib-devel libxml2-devel libnl-devel upower-devel gtk-doc-tools
 ```
 
-The generated artifacts are copied to respective directories under `/usr/local`.
-If a custom install path is preferred other than system default,  make sure
-`--localstatedir` and `--sysconfdir` are set to the right path that the system
-can understand. If installed via RPM then artifacts would be under `/usr`.
+## How it works
 
-Example command for installation using prefix under `/opt/lpmd_install` dir with
-`--localstatedir` and `--sysconfdir` set to system default
+The daemon reads `/usr/local/etc/intel_lpmd/intel_lpmd_config.xml` and your
+system's power profile (Performance / Balanced / Power Saver).
+
+- **Performance**: lpmd stays off — zero interference
+- **Balanced**: lpmd runs in auto mode, picks the best state based on workload
+- **Power Saver**: lpmd forces low power mode on, keeping only the efficiency cores active
+
+Switch profiles through your desktop's power menu or with `powerprofilesctl`.
+
+## Usage
 
 ```sh
-./autogen.sh prefix=/opt/lpmd_install --localstatedir=/var --sysconfdir=/etc
+# Check current state
+doas intel_lpmd_control STATUS
+
+# Switch modes manually
+doas intel_lpmd_control AUTO
+doas intel_lpmd_control ON
+doas intel_lpmd_control OFF
+
+# Man pages
+man intel_lpmd
+man intel_lpmd_config.xml
+man intel_lpmd_control
 ```
 
-## Run
-
-### Start Service
+## Testing
 
 ```sh
-sudo systemctl start intel_lpmd.service
+# Run in foreground to watch what it does
+doas intel_lpmd --no-daemon --dbus-enable --loglevel=debug
+
+# In another terminal, trigger a mode change
+doas intel_lpmd_control ON
 ```
 
-### Get Status
+## Uninstall
 
 ```sh
-sudo systemctl status intel_lpmd.service
+doas dinitctl stop intel-lpmd
+doas dinitctl disable intel-lpmd
+doas rm /etc/dinit.d/intel-lpmd
+doas gmake uninstall
 ```
 
-### Stop Service
+## License
 
-```sh
-sudo systemctl stop intel_lpmd.service
-```
+GPL v2. See COPYING.
 
-### Terminate using DBUS Interface
-
-```sh
-sudo tests/lpm_test_interface.sh 1
-```
-
-## Testing Installation from Source
-
-Launch `lpmd` in no-daemon mode:
-```sh
-./intel_lpmd --no-daemon --dbus-enable --loglevel=debug
-```
-
-Start `lpmd` using:
-```sh
-sudo sh tests/lpm_test_interface.sh 4
-```
-
-Run a workload and monitor `lpmd` to ensure it puts the system in the
-appropriate state based on the load.
-
-## Releases
-
-### Release 0.1.0
-- Add support for Panther Lake
-
-### Release 0.0.9
-
-- Fix lpmd from processing HFI/WLT updates when it is not in auto mode.
-- Improve README and other documents.
-- Add support for graphics utilization detection.
-- Add support for config states based on both WLT and graphics utilization.
-- Introduce LunarLake platform specific config file.
-- Minor fixes and cleanups.
-
-### Release 0.0.8
-
-- Introduce workload type proxy support.
-- Add support for model/sku specific config file.
-- Add detection for AC/DC status.
-- Honor power profile daemon default EPP when restoring.
-- Introduce MeteorLake-P platform specific config file.
-- Minor fixes and cleanups.
-
-### Release 0.0.7
-
-- Change lpmd description from "Low Power Mode Daemon" to "Energy Optimizer (lpmd)" because it covers more scenarios.
-- Fix invalid cgroup setting during probe, in case lpmd doesn't quit smoothly and cleanups are not done properly in the previous run.
-- Introduce a new parameter `--ignore-platform-check`.
-- Provide more detailed information when lpmd fails to probe on an unvalidated platform.
-- Various fixes for array bound check, potential memory leak, etc.
-- Autotool improvements.
-
-### Release 0.0.6
-
-- Remove automake and autoconf improvements due to a regression.
-- Deprecate the dbus-glib dependency.
-
-### Release 0.0.5
-
-- Fix compiling errors with `-Wall`.
-- Remove unintended default config file change to keep it unchanged since v0.0.3.
-
-### Release 0.0.4
-
-- Enhance HFI monitor to handle back-to-back HFI LPM hints.
-- Enhance HFI monitor to handle HFI hints for banned CPUs.
-- Introduce support for multiple Low Power states.
-- Introduce support for workload type hint.
-- Allow change EPP during Low Power modes transition.
-- Minor fixes and cleanups.
-
-### Release 0.0.3
-
-- Convert from glib-dbus to GDBus.
-- Add handling for CPU hotplug.
-- Use strict CPU model check to allow intel_lpmd to run on validated platforms only, including ADL/RPL/MTL for now.
-- CPUID.7 Hybrid bit is set
-- /sys/firmware/acpi/pm_profile returns 2 (mobile platform)
-- Use `cpuid()` to detect Lcores instead of using cache sysfs.
-- Enhance Ecore module detection.
-- Fix pthread error handling, suggested by ColinIanKing.
-- Werror fixes from aekoroglu.
-
-### Release 0.0.2
-
-- Various fixes and cleanups.
-
-### Release 0.0.1
-
-- Add initial lpmd support.
-
-## Security
-
-See Intel's [Security Center](https://www.intel.com/content/www/us/en/security-center/default.html) for information on how to report a potential security issue or vulnerability.
-
-See also: [Security Policy](security.md)
+Based on [intel_lpmd](https://github.com/intel/intel_lpmd) by Intel.

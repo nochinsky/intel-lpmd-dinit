@@ -60,11 +60,7 @@ Print intel_lpmd version and exit
 
 .TP
 .B --no-daemon
-Don't run as a daemon: Default is daemon mode
-
-.TP
-.B --systemd
-Assume daemon is started by systemd
+Run in foreground, log to stdout. Default is daemon mode (log to syslog).
 
 .TP
 .B --loglevel=
@@ -84,13 +80,12 @@ Ignore platform check
 Run intel_lpmd with log directed to stdout
 
 .TP
-.B intel_lpmd --systemd --dbus-enable
-Run intel_lpmd as a service with logs directed to system journal
+.B intel_lpmd --no-daemon --dbus-enable
+Run intel_lpmd as a foreground service with logs directed to syslog (for dinit)
 
 .TP
-.B sudo systemctl enable intel_lpmd.service --now
-Enable and run intel_lpmd as a systemd service that's persistent after system
-reboot.
+.B doas dinitctl enable intel-lpmd && doas dinitctl start intel-lpmd
+On dinit (Chimera Linux): enable and start the service
 
 .SH SEE ALSO
 intel_lpmd_config.xml(5), intel_lpmd_control(8)

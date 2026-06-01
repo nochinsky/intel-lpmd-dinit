@@ -12,12 +12,12 @@ for Intel Energy Optimizer (LPMD) daemon
 	<lp_mode_cpus></lp_mode_cpus>
 
 	<!--
-		Mode values
-		0: Cgroup v2
-		1: Cgroup v2 isolate
+		Mode values (all modes use direct cgroup v2 cpuset isolation)
+		0: Compatibility alias — same as mode 1
+		1: Cgroup v2 isolate (direct cgroupfs; default for dinit)
 		2: CPU idle injection
 	-->
-	<Mode>0</Mode>
+	<Mode>1</Mode>
 
 	<!--
 		Default behavior when Performance power setting is used
@@ -33,7 +33,7 @@ for Intel Energy Optimizer (LPMD) daemon
 		 1: force on. (Always stay in Low Power Mode)
 		 0: auto. (opportunistic Low Power Mode enter/exit)
 	-->
-	<BalancedDef>-1</BalancedDef>
+	<BalancedDef>0</BalancedDef>
 
 	<!--
 		Default behavior when Power saver setting is used
@@ -41,7 +41,7 @@ for Intel Energy Optimizer (LPMD) daemon
 		 1: force on. (Always stay in Low Power Mode)
 		 0: auto. (opportunistic Low Power Mode enter/exit)
 	-->
-	<PowersaverDef>-1</PowersaverDef>
+	<PowersaverDef>1</PowersaverDef>
 
 	<!--
 		Use HFI LPM hints

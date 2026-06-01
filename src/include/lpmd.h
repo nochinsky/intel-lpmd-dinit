@@ -232,7 +232,7 @@ typedef struct {
 } lpmd_config_t;
 
 enum lpm_cpu_process_mode {
-	LPM_CPU_CGROUPV2,
+	LPM_CPU_CGROUPV2 = 0,		/* compatibility alias — all modes use direct cgroupfs isolate */
 	LPM_CPU_ISOLATE,
 	LPM_CPU_POWERCLAMP,
 	LPM_CPU_OFFLINE,
@@ -395,7 +395,6 @@ char* get_cpus_hexstr(enum cpumask_idx idx);
 char *get_proc_irq_str(enum cpumask_idx idx);
 char *get_irqbalance_str(enum cpumask_idx idx);
 char *get_cpu_isolation_str(enum cpumask_idx idx);
-uint8_t *get_cgroup_systemd_vals(enum cpumask_idx idx, int *size);
 
 /* socket.c */
 int socket_init_connection(char *name);

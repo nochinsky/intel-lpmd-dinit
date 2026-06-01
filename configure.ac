@@ -31,21 +31,12 @@ AC_SUBST([lpmd_confdir], ["$sysconfdir/$PACKAGE"], [Configuration directory])
 AC_SUBST([lpmd_rundir], ["$localstatedir/run/$PACKAGE"], [Runtime state directory])
 
 PKG_PROG_PKG_CONFIG
-AC_ARG_WITH([systemdsystemunitdir],
-	[AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files])],
-	[], [with_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)])
-AS_IF([test "x$with_systemdsystemunitdir" != xno], [
-        AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
-])
-
-AM_CONDITIONAL([HAVE_SYSTEMD], [test -n "$with_systemdsystemunitdir" && test "x$with_systemdsystemunitdir" != xno])
 
 # print configuration
 echo
 echo "System paths:"
 echo "  prefix: $prefix"
 echo "  exec_prefix: $exec_prefix"
-echo "  systemdunitdir: $with_systemdsystemunitdir"
 echo "  lpmd_binary: $lpmd_binary"
 echo "  lpmd_confdir: $lpmd_confdir"
 echo "  lpmd_rundir: $lpmd_rundir"
@@ -66,10 +57,6 @@ PKG_CHECK_MODULES([XML], [libxml-2.0 >= 2.4])
 
 PKG_CHECK_MODULES([libnl30], [libnl-3.0], [libnl30=yes], [libnl30=no])
 PKG_CHECK_MODULES([libnlgenl30], [libnl-genl-3.0], libnlgenl30=yes, libnlgenl30=no)
-
-PKG_CHECK_MODULES([SYSTEMD], [libsystemd], [],
-      [PKG_CHECK_MODULES([SYSTEMD], [libsystemd-daemon], [],
-       [AC_MSG_ERROR([libsystemd support requested but not found])])])
 
 PKG_CHECK_MODULES([UPOWER], [upower-glib])
 

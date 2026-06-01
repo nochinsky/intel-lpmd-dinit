@@ -50,12 +50,11 @@ platform.
 .B Mode
 specifies the way to migrate the tasks to the lp_mode_cpus.
 .IP \(bu 2
-Mode 0: set cpuset to the lp_mode_cpus for systemd. All tasks created by
-systemd will run on these CPUs only. This is supported for cgroup v2 based
-systemd only.
+Mode 0: Compatibility alias — same as mode 1. All modes use direct
+cgroup v2 cpuset isolation (no systemd required).
 .IP \(bu 2
 Mode 1: Isolate the non-lp_mode_cpus so that tasks are scheduled to the
-lp_mode_cpus only.
+lp_mode_cpus only. This is the default.
 .IP \(bu 2
 Mode 2: Force idle injection to the non-lp_mode_cpus and leverage the
 scheduler to schedule the other tasks to the lp_mode_cpus.
@@ -261,7 +260,7 @@ This is the minimum configuration.
 .IP \(bu 2
 lp_mode_cpus: not set. Detects the lp_mode_cpus automatically.
 .IP \(bu 2
-Mode: 0. Use cgroup-v2 systemd for task migration.
+Mode: 0. Use cgroup v2 cpuset isolation for task migration.
 .IP \(bu 2
 HfiLpmEnable: 0. Ignore HFI Low Power mode hints.
 .IP \(bu 2
@@ -291,7 +290,7 @@ This is the typical configuration. The utilization thresholds and delays may be 
 .IP \(bu 2
 lp_mode_cpus: not set. Detects the lp_mode_cpus automatically.
 .IP \(bu 2
-Mode: 0. Use cgroup-v2 systemd for task migration.
+Mode: 0. Use cgroup v2 cpuset isolation for task migration.
 .IP \(bu 2
 HfiLpmEnable: 1. Enter/Exit Low Power Mode based on HFI hints.
 .IP \(bu 2

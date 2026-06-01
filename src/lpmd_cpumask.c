@@ -491,8 +491,3 @@ char *get_cpu_isolation_str(enum cpumask_idx idx)
 	else
 		return get_cpus_str_reverse(idx);
 }
-
-uint8_t *get_cgroup_systemd_vals(enum cpumask_idx idx, int *size)
-{
-	return get_cpus_hexvals(idx, size);
-}

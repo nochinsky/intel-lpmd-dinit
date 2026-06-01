@@ -2,20 +2,21 @@
 
 include $(GLIB_MAKEFILE)
 
-if HAVE_SYSTEMD
-systemdsystemunit_DATA = \
-	intel_lpmd.service
-
-intel_lpmd.service: intel_lpmd.service.in
-	@$(edit) $< >$@
-
+# D-Bus system service activation
 servicedir = $(datadir)/dbus-1/system-services
 service_in_files = org.freedesktop.intel_lpmd.service.in
 service_DATA = $(service_in_files:.service.in=.service)
 
 $(service_DATA): $(service_in_files) Makefile
 	@$(edit) $< >$@
-endif
+
+# D-Bus security policy
+dbusservicedir = $(DBUS_SYS_DIR)
+dbusservice_DATA = org.freedesktop.intel_lpmd.conf
+
+# Dinit service
+dinitdir = $(datadir)/dinit.d
+dinit_DATA = intel_lpmd.dinit
 
 edit = sed \
 	-e 's|@bindir[@]|$(bindir)|g' \
@@ -23,9 +24,7 @@ edit = sed \
 	-e 's|@sysconfdir[@]|$(sysconfdir)|g' \
 	-e 's|@localstatedir[@]|$(localstatedir)|g'
 
-dbusservicedir = $(DBUS_SYS_DIR)
-dbusservice_DATA = org.freedesktop.intel_lpmd.conf
-
+# Config files
 lpmd_configdir = $(lpmd_confdir)
 lpmd_config_DATA = \
 	  intel_lpmd_config.xml \
@@ -34,8 +33,8 @@ lpmd_config_DATA = \
 	  intel_lpmd_config_F6_M204.xml
 
 EXTRA_DIST = \
-	intel_lpmd.service.in \
+	intel_lpmd.dinit \
 	org.freedesktop.intel_lpmd.service.in \
 	$(dbusservice_DATA)
 
-CLEANFILES = intel_lpmd.service org.freedesktop.intel_lpmd.service
+CLEANFILES = org.freedesktop.intel_lpmd.service

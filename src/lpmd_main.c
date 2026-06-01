@@ -174,7 +174,6 @@ int main(int argc, char *argv[])
 	gboolean log_info = FALSE;
 	gboolean log_debug = FALSE;
 	gboolean no_daemon = FALSE;
-	gboolean systemd = FALSE;
 	gboolean success;
 	GOptionContext *opt_ctx;
 	int ret;
@@ -185,8 +184,7 @@ int main(int argc, char *argv[])
 
 	GOptionEntry options[] =
 			{ { "version", 0, 0, G_OPTION_ARG_NONE, &show_version, N_ ("Print intel_lpmd version and exit"), NULL },
-			  { "no-daemon", 0, 0, G_OPTION_ARG_NONE, &no_daemon, N_ ("Don't become a daemon: Default is daemon mode"), NULL },
-			  { "systemd", 0, 0, G_OPTION_ARG_NONE, &systemd, N_ ("Assume daemon is started by systemd, always run in non-daemon mode when using this parameter"), NULL },
+			  { "no-daemon", 0, 0, G_OPTION_ARG_NONE, &no_daemon, N_ ("Run in foreground, log to stdout (default: daemonize and log to syslog)"), NULL },
 			  { "loglevel=info", 0, 0, G_OPTION_ARG_NONE, &log_info, N_ ("Log severity: info level and up"), NULL },
 			  { "loglevel=debug", 0, 0, G_OPTION_ARG_NONE, &log_debug, N_ ("Log severity: debug level and up: Max logging"), NULL },
 			  { "dbus-enable", 0, 0, G_OPTION_ARG_NONE, &dbus_enable, N_ ( "Enable Dbus"), NULL },
@@ -259,8 +257,8 @@ int main(int argc, char *argv[])
 	openlog ("intel_lpmd", LOG_PID, LOG_USER | LOG_DAEMON | LOG_SYSLOG);
 //	 Don't care return val
 
-	intel_lpmd_daemonize = !no_daemon && !systemd;
-	use_syslog = !no_daemon || systemd;
+	intel_lpmd_daemonize = !no_daemon;
+	use_syslog = !no_daemon;
 	g_log_set_handler (NULL, G_LOG_LEVEL_MASK, intel_lpmd_logger, NULL);
 
 	if (check_intel_lpmd_running ()) {

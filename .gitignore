@@ -1,0 +1,45 @@
+# Build artifacts (autotools)
+*.o
+*.lo
+*.la
+.libs/
+.deps/
+Makefile
+Makefile.in
+aclocal.m4
+autom4te.cache/
+build-aux/
+config.h
+config.h.in
+config.log
+config.status
+stamp-h1
+configure
+libtool
+*.pc
+
+# Binaries
+intel_lpmd
+intel_lpmd_control
+
+# Editors
+*~
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Tarballs
+*.tar.gz
+*.tar.xz
+
+# Autotools generated (not tracked in git)
+gtk-doc.make
+m4/gtk-doc.m4
+m4/pkg.m4
+configure~
+lpmd-resource.c
+src/.dirstamp
+src/wlt_proxy/.dirstamp
+data/org.freedesktop.intel_lpmd.service
+
